@@ -40,7 +40,7 @@ const login = async (req, res) => {
       }
     )
 
-    res.status(200).json({ token, email: user.email, userId: user._id })
+    res.status(200).json({ token, email: user.email, userId: user._id, name: user.username })
   } catch (error) {
     res.status(500).json({ message: 'No se pudo iniciar sesion' })
   }
