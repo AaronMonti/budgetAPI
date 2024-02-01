@@ -7,6 +7,7 @@ import connectDB from './db.js'
 import v1ExpensesRouter from './v1/routes/expenseRoutes.js'
 import v1UsersRouter from './v1/routes/userRoutes.js'
 import v1AuthRouter from './v1/routes/authRoutes.js'
+import v1ReportsRouter from './v1/routes/reportsRoutes.js'
 import authorized from './middlewares/auth.js'
 
 const app = express()
@@ -19,8 +20,9 @@ app.use(morgan('dev'))
 app.use(cors())
 
 app.use('/api/v1/expense', authorized, v1ExpensesRouter)
+app.use('/api/v1/reports', authorized, v1ReportsRouter)
 app.use('/api/v1/', v1AuthRouter)
-app.use('/api/v1/user', v1UsersRouter)
+app.use('/api/v1/user', authorized, v1UsersRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT} 🚀`)

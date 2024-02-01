@@ -5,7 +5,6 @@ const getAllExpenses = async (req, res) => {
   /* Quiero obetener los gastos donde mi usuario este como owner o participante  */
   try {
     const expenses = await Expense.find().populate('expenseOwner').populate('participants')
-
     res.json(expenses)
   } catch (error) {
     res.status(500).json({ message: 'No se pudieron obtener los gastos' })
@@ -14,8 +13,7 @@ const getAllExpenses = async (req, res) => {
 
 const getOneExpense = async (req, res) => {
   try {
-    const userId = req.user.userId
-    const expense = await Expense.findOne({ _id: req.params.id, expenseOwner: userId })
+    const expense = await Expense.findOne({ _id: req.params.id })
 
     if (!expense) {
       return res.status(404).json({ message: 'Gasto no encontrado' })
@@ -29,22 +27,21 @@ const getOneExpense = async (req, res) => {
 
 const createNewExpense = async (req, res) => {
   try {
-    const { description, date, amount, category, paymentMethod, status, participants } = req.body
+    const { description, date, amount, category, participants } = req.body
 
     const userId = req.user.userId
     const creatorUser = await User.findById(userId)
 
-    const partUsers = await User.find({ _id: { $in: participants } })
+    // TODO: Arreglar calculo de participantes, toma string y no array
 
     const newExpense = new Expense({
       description,
       date,
       amount,
       category,
-      paymentMethod,
-      status,
       expenseOwner: creatorUser._id,
-      participants: partUsers.map(user => user._id)
+      participants,
+      amountByParticipant: amount / 2
     })
 
     const savedExpense = await newExpense.save()
@@ -60,8 +57,7 @@ const createNewExpense = async (req, res) => {
 
 const updateOneExpense = async (req, res) => {
   try {
-    const userId = req.user.userId
-    const expense = await Expense.findOneAndUpdate({ _id: req.params.id, expenseOwner: userId }, req.body, { new: true })
+    const expense = await Expense.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
 
     if (!expense) {
       // Si la Expense no se encuentra o no pertenece al usuario actual
@@ -89,10 +85,55 @@ const deleteOneExpense = async (req, res) => {
   }
 }
 
+const expensesBetweenParticipants = (expenses) => {
+  expenses.forEach(expense => {
+    if (expense.participants && expense.participants.length >= 0) {
+      const participants = expense.participants.length + 1
+      const montoPorParticipante = expense.amount / participants
+      console.log(montoPorParticipante)
+
+      expense.participants.forEach(participante => {
+        participante.montoCalculado = montoPorParticipante
+      })
+    }
+
+    return expenses
+  })
+}
+
+const getMonthlyExpenses = async (req, res) => {
+  try {
+    const expenses = await Expense.find()
+
+    const monthNames = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ]
+
+    const monthlyData = expenses.reduce((accumulator, expense) => {
+      const month = new Date(expense.date).getMonth()
+
+      // Agrega la etiqueta del mes utilizando el array predefinido de nombres de meses
+      accumulator.months[month] = monthNames[month]
+
+      // Agrega la cantidad del gasto al array correspondiente al mes
+      accumulator.data[month] = (accumulator.data[month] || 0) + expense.amount
+
+      return accumulator
+    }, { months: [], data: [] })
+
+    // Devuelve un objeto JSON que contiene las etiquetas de los meses y los datos mensuales
+    res.json({ labels: monthNames, data: monthlyData.data })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
 export {
   getAllExpenses,
   getOneExpense,
   createNewExpense,
   updateOneExpense,
-  deleteOneExpense
+  deleteOneExpense,
+  getMonthlyExpenses
 }

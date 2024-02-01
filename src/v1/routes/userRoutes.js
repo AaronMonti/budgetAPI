@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllUsers } from '../../controllers/userController.js'
+import { deleteOneUser, getAllUsers, getOneUser, updateOneUser } from '../../controllers/userController.js'
 const router = express.Router()
 
 /**
@@ -25,5 +25,11 @@ const router = express.Router()
  *                     type: object
  */
 router.get('/', getAllUsers)
+
+router.get('/:id', getOneUser)
+
+router.get('/:id', updateOneUser)
+
+router.get('/:id', deleteOneUser)
 
 export default router

@@ -24,7 +24,10 @@ const expenseSchema = new Schema({
   },
   participants: [{
     type: Schema.Types.ObjectId, ref: 'User'
-  }]
+  }],
+  amountByParticipant: {
+    type: Number
+  }
 })
 
 export default mongoose.model('Expense', expenseSchema)
