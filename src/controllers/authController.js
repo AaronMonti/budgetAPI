@@ -92,8 +92,6 @@ const refreshAccessToken = async (req, res) => {
       }
     )
 
-    console.log(newAccessToken)
-
     res.status(200).json({ accessToken: newAccessToken, expiresIn: 60 * 60 * 24 })
   } catch (error) {
     res.status(403).json({ message: 'Token de actualización inválido' })

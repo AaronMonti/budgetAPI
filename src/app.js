@@ -19,10 +19,10 @@ app.use(express.json())
 app.use(morgan('dev'))
 app.use(cors())
 
-app.use('/api/v1/expense', authorized, v1ExpensesRouter)
-app.use('/api/v1/reports', authorized, v1ReportsRouter)
+app.use('/api/v1/expense', v1ExpensesRouter)
+app.use('/api/v1/reports', v1ReportsRouter)
 app.use('/api/v1/', v1AuthRouter)
-app.use('/api/v1/user', authorized, v1UsersRouter)
+app.use('/api/v1/user', v1UsersRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT} 🚀`)

@@ -2,9 +2,15 @@ import Expense from '../models/Expense.js'
 import User from '../models/User.js'
 
 const getAllExpenses = async (req, res) => {
-  /* Quiero obetener los gastos donde mi usuario este como owner o participante  */
+  const userId = req.user.userId
+
   try {
-    const expenses = await Expense.find().populate('expenseOwner').populate('participants')
+    const expenses = await Expense.find({
+      $or: [
+        { expenseOwner: userId }, // Usuario es dueño
+        { participants: { $in: [userId] } } // Usuario es participante
+      ]
+    }).populate('expenseOwner').populate('participants')
     res.json(expenses)
   } catch (error) {
     res.status(500).json({ message: 'No se pudieron obtener los gastos' })
@@ -30,6 +36,7 @@ const createNewExpense = async (req, res) => {
     const { description, date, amount, category, participants } = req.body
 
     const userId = req.user.userId
+    console.log(userId)
     const creatorUser = await User.findById(userId)
 
     // TODO: Arreglar calculo de participantes, toma string y no array
@@ -103,7 +110,13 @@ const expensesBetweenParticipants = (expenses) => {
 
 const getMonthlyExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find()
+    const userId = req.user.userId
+    const expenses = await Expense.find({
+      $or: [
+        { expenseOwner: userId }, // Usuario es dueño
+        { participants: { $in: [userId] } } // Usuario es participante
+      ]
+    }).populate('expenseOwner').populate('participants')
 
     const monthNames = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',

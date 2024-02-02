@@ -1,5 +1,6 @@
 import express from 'express'
 import { createNewExpense, deleteOneExpense, getAllExpenses, getOneExpense, updateOneExpense } from '../../controllers/expenseController.js'
+import authorized from '../../middlewares/auth.js'
 const router = express.Router()
 
 /**
@@ -24,7 +25,7 @@ const router = express.Router()
  *                   items:
  *                     type: object
  */
-router.get('/', getAllExpenses)
+router.get('/', authorized, getAllExpenses)
 
 /**
  * @openapi
@@ -48,7 +49,7 @@ router.get('/', getAllExpenses)
  *                   items:
  *                     type: object
  */
-router.get('/:id', getOneExpense)
+router.get('/:id', authorized, getOneExpense)
 
 /**
  * @openapi
@@ -72,7 +73,7 @@ router.get('/:id', getOneExpense)
  *                   items:
  *                     type: object
  */
-router.post('/', createNewExpense)
+router.post('/', authorized, createNewExpense)
 
 /**
  * @openapi
@@ -96,7 +97,7 @@ router.post('/', createNewExpense)
  *                   items:
  *                     type: object
  */
-router.put('/:id', updateOneExpense)
+router.put('/:id', authorized, updateOneExpense)
 
 /**
  * @openapi
@@ -120,6 +121,6 @@ router.put('/:id', updateOneExpense)
  *                   items:
  *                     type: object
  */
-router.delete('/:id', deleteOneExpense)
+router.delete('/:id', authorized, deleteOneExpense)
 
 export default router

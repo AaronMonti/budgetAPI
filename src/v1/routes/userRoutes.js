@@ -1,5 +1,6 @@
 import express from 'express'
 import { deleteOneUser, getAllUsers, getOneUser, updateOneUser } from '../../controllers/userController.js'
+import authorized from '../../middlewares/auth.js'
 const router = express.Router()
 
 /**
@@ -24,12 +25,12 @@ const router = express.Router()
  *                   items:
  *                     type: object
  */
-router.get('/', getAllUsers)
+router.get('/', authorized, getAllUsers)
 
-router.get('/:id', getOneUser)
+router.get('/:id', authorized, getOneUser)
 
-router.get('/:id', updateOneUser)
+router.get('/:id', authorized, updateOneUser)
 
-router.get('/:id', deleteOneUser)
+router.get('/:id', authorized, deleteOneUser)
 
 export default router
